@@ -1,1 +1,65 @@
+// server.js
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+require('dotenv').config();
 
+const Vendor = require("./models/Vendor");
+const Supplier = require("./models/Supplier");
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true, useUnifiedTopology: true
+}).then(() => console.log("MongoDB connected"))
+  .catch(err => console.error(err));
+
+// Vendor routes
+app.get("/api/vendors", async (req, res) => {
+  const list = await Vendor.find();
+  res.json(list);
+});
+app.post("/api/vendors", async (req, res) => {
+  const v = new Vendor(req.body);
+  await v.save();
+  res.json(v);
+});
+
+// Supplier routes
+app.get("/api/suppliers", async (req, res) => {
+  const list = await Supplier.find();
+  res.json(list);
+});
+app.post("/api/suppliers", async (req, res) => {
+  const s = new Supplier(req.body);
+  await s.save();
+  res.json(s);
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
+
+//verdor.js
+const mongoose = require("mongoose");
+const VendorSchema = new mongoose.Schema({
+  name: String,
+  location: String,
+  materials: [String]
+});
+module.exports = mongoose.model("Vendor", VendorSchema);
+
+
+
+//supplier.js
+const mongoose = require("mongoose");
+const SupplierSchema = new mongoose.Schema({
+  name: String,
+  materials: [String],
+  authorized: { type: Boolean, default: false }
+});
+module.exports = mongoose.model("Supplier", SupplierSchema);
