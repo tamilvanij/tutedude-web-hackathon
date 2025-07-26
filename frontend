@@ -1,0 +1,139 @@
+tailwind.config.js
+
+module.exports = {
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  theme: { extend: {} },
+  plugins: [],
+}
+
+
+
+
+src/index.css
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+
+
+src/App.js
+
+import React from "react";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import Home from "./pages/Home";
+import Vendors from "./pages/Vendors";
+import Suppliers from "./pages/Suppliers";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <nav className="bg-blue-600 text-white p-4">
+        <Link to="/" className="mr-4">Home</Link>
+        <Link to="/vendors" className="mr-4">Vendors</Link>
+        <Link to="/suppliers">Suppliers</Link>
+      </nav>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/vendors" element={<Vendors />} />
+        <Route path="/suppliers" element={<Suppliers />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+export default App;
+
+
+
+
+
+src/pages/Home.js
+
+import React from "react";
+function Home() {
+  return (
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <h1 className="text-5xl font-bold text-blue-600">Vendorlink</h1>
+      <p className="mt-4 text-gray-700">Helping street vendors source raw materials from authorized suppliers.</p>
+    </div>
+  );
+}
+
+export default Home;
+
+
+
+
+
+src/pages/Vendors.js
+
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
+function Vendors() {
+  const [vendors, setVendors] = useState([]);
+
+  useEffect(() => {
+    axios.get("http://localhost:5000/api/vendors")
+      .then(res => setVendors(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
+  return (
+    <div className="p-6">
+      <h2 className="text-2xl font-semibold mb-4">Vendors</h2>
+      <ul className="space-y-2">
+        {vendors.map(v => (
+          <li key={v._id} className="border p-4 rounded">
+            <h3 className="font-bold">{v.name}</h3>
+            <p>Location: {v.location}</p>
+            <p>Needs: {v.materials.join(", ")}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default Vendors;
+
+
+
+
+
+
+
+src/pages/Suppliers.js
+
+
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
+function Suppliers() {
+  const [suppliers, setSuppliers] = useState([]);
+
+  useEffect(() => {
+    axios.get("http://localhost:5000/api/suppliers")
+      .then(res => setSuppliers(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
+  return (
+    <div className="p-6">
+      <h2 className="text-2xl font-semibold mb-4">Suppliers</h2>
+      <ul className="space-y-2">
+        {suppliers.map(s => (
+          <li key={s._id} className="border p-4 rounded">
+            <h3 className="font-bold">{s.name}</h3>
+            <p>Materials: {s.materials.join(", ")}</p>
+            <p>Status: {s.authorized ? "Authorized" : "Pending"}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default Suppliers;
